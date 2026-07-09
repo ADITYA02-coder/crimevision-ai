@@ -22,6 +22,94 @@ model User {
   role      Role     @default(INVESTIGATOR)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  cases CaseMaster[]
 
   @@map("users")
+}
+
+enum CaseStatus {
+  OPEN
+  UNDER_INVESTIGATION
+  CHARGESHEET_FILED
+  CLOSED
+}
+
+model CaseMaster {
+  id              Int          @id @default(autoincrement())
+  crimeNumber     String       @unique
+  firNumber       String       @unique
+  title           String
+  description     String
+
+  crimeDateTime DateTime
+  
+
+  district        String
+  policeStation   String
+
+  crimeType       String
+  crimeSubType    String
+
+  latitude        Float?
+  longitude       Float?
+
+  status          CaseStatus   @default(OPEN)
+
+  createdById     Int
+
+  createdBy       User         @relation(fields: [createdById], references: [id])
+
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  deleted         Boolean      @default(false)
+  victims Victim[]
+  @@map("cases")
+}
+model Victim {
+
+  id Int @id @default(autoincrement())
+
+  caseId Int
+
+  case CaseMaster @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  fullName String
+
+  gender Gender
+
+  age Int
+
+  occupation String?
+
+  phone String?
+
+  email String?
+
+  address String?
+
+  injuryType String?
+
+  statement String? @db.Text
+
+  status VictimStatus @default(ALIVE)
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+  
+  deleted Boolean @default(false)
+
+  @@map("victims")
+}
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum VictimStatus {
+  ALIVE
+  INJURED
+  DECEASED
 }
